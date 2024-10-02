@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Realtime Database - BMI Data</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCDmDhnjeX9eUq3u7WMombKIumQFO1kUyk",
+      authDomain: "bmifitness-9be1e.firebaseapp.com",
+      databaseURL: "https://bmifitness-9be1e-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "bmifitness-9be1e",
+      storageBucket: "bmifitness-9be1e.appspot.com",
+      messagingSenderId: "32069351026",
+      appId: "1:32069351026:web:a721056f7c4d0f3fe534eb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    function fetchData() {
+      const nameRef = ref(database, 'person/name');
+      const bmiRef = ref(database, 'person/bmi');
+      const heightRef = ref(database, 'person/height');
+      const weightRef = ref(database, 'person/weight');
+
+      onValue(nameRef, (snapshot) => {
+        const name = snapshot.val();
+        document.getElementById('name').textContent = name ? `Name: ${name}` : 'Name data not available';
+      });
+
+      onValue(bmiRef, (snapshot) => {
+        const bmi = snapshot.val();
+        document.getElementById('bmi').textContent = bmi ? `BMI: ${bmi.toFixed(2)}` : 'BMI data not available';
+      });
+
+      onValue(heightRef, (snapshot) => {
+        const height = snapshot.val();
+        document.getElementById('height').textContent = height ? `Height: ${height} cm` : 'Height data not available';
+      });
+
+      onValue(weightRef, (snapshot) => {
+        const weight = snapshot.val();
+        document.getElementById('weight').textContent = weight ? `Weight: ${weight.toFixed(2)} kg` : 'Weight data not available';
+      });
+    }
+
+    function writeDataAndDisplay(name) {
+      const nameRef = ref(database, 'person/name');
+      set(nameRef, name).then(() => {
+        document.getElementById('name').textContent = `Name: ${name}`;
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('data-display').style.display = 'block';
+        fetchData();
+      });
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const name = document.getElementById('nameInput').value;
+      writeDataAndDisplay(name);
+    }
+
+    window.addEventListener('load', () => {
+      document.getElementById('dataForm').addEventListener('submit', handleFormSubmit);
+      document.getElementById('data-display').style.display = 'none';
+    });
+  </script>
+</head>
+<body>
+  <div id="input-section">
+    <h1>Write and Display Data</h1>
+    <form id="dataForm">
+      <input type="text" id="nameInput" placeholder="Name" required>
+      <button type="submit">Write to Database</button>
+    </form>
+  </div>
+
+  <div id="data-display">
+    <h2>Firebase Realtime Database - BMI Data</h2>
+    <p id="name">Name: </p>
+    <p id="height">Height: </p>
+    <p id="weight">Weight: </p>
+    <p id="bmi">BMI: </p>
+  </div>
+</body>
+</html>
